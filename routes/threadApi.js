@@ -12,19 +12,95 @@ router.get('/', (req,res)=>{
       res.send(result)
     });
 })
+
+const da = [{$lookup: {
+  from: "threads",
+  let: {
+    temp: "$_id"
+  },
+  pipeline: [
+    {
+      $match: {
+        $expr: {
+          $eq: ["$itemId", "$$temp"]
+        }
+      }
+    },
+    {
+    $lookup: {
+      from: "threads",
+      localField: "_id",
+      foreignField: "itemId",
+      as: "comments"
+    }
+  },
+  {
+    $project: {
+      color: 1,
+      title: 1,
+      timestamp: 1,
+      itemId:1,
+      comments: 1
+    }
+  }
+  ],
+  as: "comments"}
+}]
 router.get('/detail/:id', (req,res)=>{
 
   let query = [
     {
       $match: { _id: mongoose.Types.ObjectId(req.params.id)}
-    }, {
-      $lookup: {
-        from: "threads",
-        localField: "_id",
-        foreignField: "itemId",
-        as: "comments"
+    }, 
+    {
+      $graphLookup: {
+         from: 'threads',
+         startWith: "$_id",
+
+         connectFromField: "_id",
+         connectToField: "itemId",
+         as: "comments",
+      
       }
-    }]
+   }, 
+  
+    {$lookup: {
+      from: "threads",
+      let: {
+        temp: "$_id"
+      },
+      pipeline: [
+        {
+          $match: {
+            $expr: {
+              $eq: ["$itemId", "$$temp"]
+            }
+          }
+        },
+        {
+        $lookup: {
+          from: "threads",
+          localField: "_id",
+          foreignField: "itemId",
+          as: "comments"
+        }
+      },
+      ...da,
+      {
+        $project: {
+          color: 1,
+          title: 1,
+          timestamp: 1,
+          itemId:1,
+          comments: 1
+        }
+      }
+      ],
+      as: "comments"}
+    }, 
+     
+   
+  ]
   Thread.aggregate(query).exec(async (err, result) =>{ 
     if(err) return res.send(err)
       res.send(result)
