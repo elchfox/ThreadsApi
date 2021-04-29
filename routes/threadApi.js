@@ -27,25 +27,22 @@ const da = [{$lookup: {
       }
     },
     {
-    $lookup: {
-      from: "threads",
-      localField: "_id",
-      foreignField: "itemId",
-      as: "comments"
-    }
+      $graphLookup: {
+        from: 'threads',
+        startWith: "$_id",
+
+        connectFromField: "_id",
+        connectToField: "itemId",
+        as: "comments",
+     
+     }
   },
-  {
-    $project: {
-      color: 1,
-      title: 1,
-      timestamp: 1,
-      itemId:1,
-      comments: 1
-    }
-  }
+  
   ],
-  as: "comments"}
-}]
+  as: "comments"},
+},
+
+]
 router.get('/detail/:id', (req,res)=>{
 
   let query = [
@@ -78,26 +75,23 @@ router.get('/detail/:id', (req,res)=>{
           }
         },
         {
-        $lookup: {
-          from: "threads",
-          localField: "_id",
-          foreignField: "itemId",
-          as: "comments"
-        }
+          $graphLookup: {
+            from: 'threads',
+            startWith: "$_id",
+   
+            connectFromField: "_id",
+            connectToField: "itemId",
+            as: "comments",
+         
+         }
       },
       ...da,
-      {
-        $project: {
-          color: 1,
-          title: 1,
-          timestamp: 1,
-          itemId:1,
-          comments: 1
-        }
-      }
+      
       ],
-      as: "comments"}
-    }, 
+      as: "comments"},
+      
+    }
+    
      
    
   ]
