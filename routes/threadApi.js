@@ -13,37 +13,6 @@ router.get('/', (req,res)=>{
     });
 })
 
-const lastComments = [{$lookup: {
-  from: "threads",
-  let: {
-    temp: "$_id"
-  },
-  pipeline: [
-    {
-      $match: {
-        $expr: {
-          $eq: ["$itemId", "$$temp"]
-        }
-      }
-    },
-    {
-      $graphLookup: {
-        from: 'threads',
-        startWith: "$_id",
-
-        connectFromField: "_id",
-        connectToField: "itemId",
-        as: "comments",
-     
-     }
-  },
-  
-  ],
-  as: "comments"},
-},
-
-]
-
 // Take detail by id of thread
 router.get('/detail/:id', (req,res)=>{
 
@@ -86,12 +55,9 @@ router.get('/detail/:id', (req,res)=>{
             as: "comments",
          
          }
-      },
-      ...lastComments,
-      
+      }      
       ],
-      as: "comments"},
-      
+      as: "comments"}
     }
     
      
