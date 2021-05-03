@@ -13,7 +13,7 @@ router.get('/', (req,res)=>{
     });
 })
 
-const da = [{$lookup: {
+const lastComments = [{$lookup: {
   from: "threads",
   let: {
     temp: "$_id"
@@ -43,6 +43,8 @@ const da = [{$lookup: {
 },
 
 ]
+
+// Take detail by id of thread
 router.get('/detail/:id', (req,res)=>{
 
   let query = [
@@ -85,7 +87,7 @@ router.get('/detail/:id', (req,res)=>{
          
          }
       },
-      ...da,
+      ...lastComments,
       
       ],
       as: "comments"},
